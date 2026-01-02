@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Appointment Booking System - Demo</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        
+        .navbar { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); padding: 1rem 0; box-shadow: 0 2px 20px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .nav-container { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+        .logo { color: #2c3e50; font-size: 1.8rem; font-weight: 700; background: linear-gradient(45deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-links { display: flex; list-style: none; gap: 2rem; }
+        .nav-links a { color: #2c3e50; text-decoration: none; cursor: pointer; font-weight: 500; transition: all 0.3s ease; padding: 0.5rem 1rem; border-radius: 25px; }
+        .nav-links a:hover { background: linear-gradient(45deg, #667eea, #764ba2); color: white; transform: translateY(-2px); }
+        
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 20px; }
+        .card { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); padding: 2.5rem; margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.2); }
+        
+        .hero { text-align: center; padding: 4rem 0; }
+        .hero h1 { font-size: 3.5rem; font-weight: 700; color: white; margin-bottom: 1rem; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .hero p { font-size: 1.3rem; color: rgba(255,255,255,0.9); margin-bottom: 2rem; }
+        
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2c3e50; }
+        .form-group input { width: 100%; padding: 1rem; border: 2px solid #e1e8ed; border-radius: 12px; font-size: 1rem; transition: all 0.3s ease; background: rgba(255,255,255,0.8); }
+        .form-group input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+        
+        .btn { background: linear-gradient(45deg, #667eea, #764ba2); color: white; padding: 1rem 2rem; border: none; border-radius: 25px; cursor: pointer; font-size: 1rem; font-weight: 600; margin-right: 1rem; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(102,126,234,0.3); }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(102,126,234,0.4); }
+        .btn-secondary { background: linear-gradient(45deg, #f093fb, #f5576c); }
+        
+        .doctor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2rem; }
+        .doctor-card { background: rgba(255,255,255,0.95); border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); padding: 2rem; transition: all 0.3s ease; border: 1px solid rgba(255,255,255,0.2); }
+        .doctor-card:hover { transform: translateY(-5px); box-shadow: 0 12px 40px rgba(0,0,0,0.15); }
+        .doctor-card h3 { color: #2c3e50; font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .specialization { color: #667eea; font-weight: 500; margin-bottom: 1.5rem; font-size: 1.1rem; }
+        
+        .time-slots { display: flex; gap: 0.8rem; margin: 1.5rem 0; flex-wrap: wrap; }
+        .time-slot { padding: 0.8rem 1.2rem; border: 2px solid #667eea; border-radius: 15px; cursor: pointer; transition: all 0.3s ease; font-weight: 500; background: rgba(255,255,255,0.8); }
+        .time-slot:hover, .time-slot.selected { background: linear-gradient(45deg, #667eea, #764ba2); color: white; transform: scale(1.05); }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin-bottom: 2rem; }
+        .stat-card { background: linear-gradient(45deg, #667eea, #764ba2); color: white; padding: 2rem; border-radius: 20px; text-align: center; box-shadow: 0 8px 32px rgba(102,126,234,0.3); }
+        .stat-number { font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+        .stat-label { font-size: 1.1rem; opacity: 0.9; }
+        
+        .appointments-grid { display: grid; gap: 1.5rem; }
+        .appointment-card { background: rgba(255,255,255,0.95); border-radius: 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); padding: 2rem; display: flex; justify-content: space-between; align-items: center; transition: all 0.3s ease; }
+        .appointment-card:hover { transform: translateY(-3px); }
+        .appointment-info h3 { color: #2c3e50; margin-bottom: 0.5rem; }
+        .appointment-info p { color: #667eea; margin-bottom: 0.3rem; }
+        
+        .status { padding: 0.5rem 1.2rem; border-radius: 25px; font-size: 0.9rem; font-weight: 600; }
+        .status.pending { background: linear-gradient(45deg, #f093fb, #f5576c); color: white; }
+        .status.confirmed { background: linear-gradient(45deg, #4facfe, #00f2fe); color: white; }
+        .status.cancelled { background: linear-gradient(45deg, #ff9a9e, #fecfef); color: #333; }
+        
+        .alert { padding: 1.2rem; border-radius: 15px; margin-bottom: 1.5rem; font-weight: 500; }
+        .alert-success { background: linear-gradient(45deg, #56ab2f, #a8e6cf); color: white; }
+        .alert-error { background: linear-gradient(45deg, #ff416c, #ff4b2b); color: white; }
+        
+        .hidden { display: none; }
+        
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .nav-container { flex-direction: column; gap: 1rem; }
+            .nav-links { gap: 1rem; }
+            .time-slots { flex-direction: column; }
+            .appointment-card { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">AppointmentBook</div>
+            <ul class="nav-links">
+                <li><a onclick="showPage('home')">Home</a></li>
+                <li><a onclick="showPage('login')" id="loginLink">Login</a></li>
+                <li><a onclick="showPage('register')" id="registerLink">Register</a></li>
+                <li><a onclick="showPage('dashboard')" id="dashboardLink" class="hidden">Dashboard</a></li>
+                <li><a onclick="showPage('doctors')" id="doctorsLink" class="hidden">Doctors</a></li>
+                <li><a onclick="showPage('appointments')" id="appointmentsLink" class="hidden">My Appointments</a></li>
+                <li><a onclick="logout()" id="logoutLink" class="hidden">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Home Page -->
+        <div id="homePage" class="page">
+            <div class="hero">
+                <h1>Smart Appointment Booking</h1>
+                <p>Book appointments with doctors easily and manage your healthcare schedule</p>
+                <button class="btn" onclick="showPage('register')">Get Started</button>
+                <button class="btn btn-secondary" onclick="showPage('login')">Login</button>
+            </div>
+        </div>
+
+        <!-- Login Page -->
+        <div id="loginPage" class="page hidden">
+            <div class="card" style="max-width: 400px; margin: 0 auto;">
+                <h2>Patient Login</h2>
+                <div id="loginAlert"></div>
+                <form onsubmit="login(event)">
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input type="email" id="loginEmail" value="test@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password:</label>
+                        <input type="password" id="loginPassword" value="123456" required>
+                    </div>
+                    <button type="submit" class="btn">Login</button>
+                </form>
+                <p style="margin-top: 1rem;">Don't have an account? <a onclick="showPage('register')" style="cursor: pointer; color: #3498db;">Register here</a></p>
+            </div>
+        </div>
+
+        <!-- Register Page -->
+        <div id="registerPage" class="page hidden">
+            <div class="card" style="max-width: 400px; margin: 0 auto;">
+                <h2>Patient Registration</h2>
+                <div id="registerAlert"></div>
+                <form onsubmit="register(event)">
+                    <div class="form-group">
+                        <label>Full Name:</label>
+                        <input type="text" id="registerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input type="email" id="registerEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password:</label>
+                        <input type="password" id="registerPassword" required>
+                    </div>
+                    <button type="submit" class="btn">Register</button>
+                </form>
+                <p style="margin-top: 1rem;">Already have an account? <a onclick="showPage('login')" style="cursor: pointer; color: #3498db;">Login here</a></p>
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboardPage" class="page hidden">
+            <div class="hero" style="padding: 2rem 0;">
+                <h1 style="font-size: 2.5rem;">Welcome, <span id="patientName">Patient</span>!</h1>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalAppointments">0</div>
+                    <div class="stat-label">Total Appointments</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="pendingAppointments">0</div>
+                    <div class="stat-label">Pending Appointments</div>
+                </div>
+            </div>
+            <div class="doctor-grid">
+                <div class="card">
+                    <h3>Quick Actions</h3>
+                    <button class="btn" onclick="showPage('doctors')">Book New Appointment</button>
+                    <br><br>
+                    <button class="btn btn-secondary" onclick="showPage('appointments')">View My Appointments</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doctors Page -->
+        <div id="doctorsPage" class="page hidden">
+            <h1>Available Doctors</h1>
+            <div id="bookingAlert"></div>
+            <div class="doctor-grid">
+                <div class="doctor-card">
+                    <h3>Dr. John Smith</h3>
+                    <p style="color: #7f8c8d; margin-bottom: 1rem;">Cardiologist</p>
+                    <div class="time-slots">
+                        <div class="time-slot" onclick="selectSlot(this, 1, '09:00-10:00')">09:00-10:00</div>
+                        <div class="time-slot" onclick="selectSlot(this, 1, '14:00-15:00')">14:00-15:00</div>
+                        <div class="time-slot" onclick="selectSlot(this, 1, '16:00-17:00')">16:00-17:00</div>
+                    </div>
+                    <button class="btn" onclick="bookAppointment(1, 'Dr. John Smith', 'Cardiologist')">Book Appointment</button>
+                </div>
+                <div class="doctor-card">
+                    <h3>Dr. Sarah Johnson</h3>
+                    <p style="color: #7f8c8d; margin-bottom: 1rem;">Dermatologist</p>
+                    <div class="time-slots">
+                        <div class="time-slot" onclick="selectSlot(this, 2, '09:00-10:00')">09:00-10:00</div>
+                        <div class="time-slot" onclick="selectSlot(this, 2, '14:00-15:00')">14:00-15:00</div>
+                        <div class="time-slot" onclick="selectSlot(this, 2, '16:00-17:00')">16:00-17:00</div>
+                    </div>
+                    <button class="btn" onclick="bookAppointment(2, 'Dr. Sarah Johnson', 'Dermatologist')">Book Appointment</button>
+                </div>
+                <div class="doctor-card">
+                    <h3>Dr. Michael Brown</h3>
+                    <p style="color: #7f8c8d; margin-bottom: 1rem;">Orthopedic</p>
+                    <div class="time-slots">
+                        <div class="time-slot" onclick="selectSlot(this, 3, '09:00-10:00')">09:00-10:00</div>
+                        <div class="time-slot" onclick="selectSlot(this, 3, '14:00-15:00')">14:00-15:00</div>
+                        <div class="time-slot" onclick="selectSlot(this, 3, '16:00-17:00')">16:00-17:00</div>
+                    </div>
+                    <button class="btn" onclick="bookAppointment(3, 'Dr. Michael Brown', 'Orthopedic')">Book Appointment</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Appointments Page -->
+        <div id="appointmentsPage" class="page hidden">
+            <h1>My Appointments</h1>
+            <div class="appointments-grid" id="appointmentsList">
+                <div class="card">
+                    <p>No appointments found. <a onclick="showPage('doctors')" style="cursor: pointer; color: #3498db;">Book your first appointment</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let selectedSlots = {};
+        let appointments = [];
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
+            document.getElementById(pageId + 'Page').classList.remove('hidden');
+        }
+
+        function login(event) {
+            event.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (email === 'test@example.com' && password === '123456') {
+                currentUser = { name: 'Test Patient', email: email };
+                document.getElementById('patientName').textContent = currentUser.name;
+                updateNavigation(true);
+                showPage('dashboard');
+                updateStats();
+            } else {
+                document.getElementById('loginAlert').innerHTML = '<div class="alert alert-error">Invalid email or password</div>';
+            }
+        }
+
+        function register(event) {
+            event.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            
+            document.getElementById('registerAlert').innerHTML = '<div class="alert alert-success">Registration successful! Please login.</div>';
+            setTimeout(() => showPage('login'), 1500);
+        }
+
+        function logout() {
+            currentUser = null;
+            appointments = [];
+            updateNavigation(false);
+            showPage('home');
+        }
+
+        function updateNavigation(loggedIn) {
+            const guestLinks = ['loginLink', 'registerLink'];
+            const userLinks = ['dashboardLink', 'doctorsLink', 'appointmentsLink', 'logoutLink'];
+            
+            guestLinks.forEach(id => {
+                document.getElementById(id).classList.toggle('hidden', loggedIn);
+            });
+            
+            userLinks.forEach(id => {
+                document.getElementById(id).classList.toggle('hidden', !loggedIn);
+            });
+        }
+
+        function selectSlot(element, doctorId, slot) {
+            element.parentElement.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedSlots[doctorId] = slot;
+        }
+
+        function bookAppointment(doctorId, doctorName, specialization) {
+            if (!selectedSlots[doctorId]) {
+                document.getElementById('bookingAlert').innerHTML = '<div class="alert alert-error">Please select a time slot</div>';
+                return;
+            }
+            
+            const appointment = {
+                id: appointments.length + 1,
+                doctorName: doctorName,
+                specialization: specialization,
+                slot: selectedSlots[doctorId],
+                status: 'Pending'
+            };
+            
+            appointments.push(appointment);
+            document.getElementById('bookingAlert').innerHTML = '<div class="alert alert-success">Appointment booked successfully!</div>';
+            updateStats();
+            setTimeout(() => document.getElementById('bookingAlert').innerHTML = '', 3000);
+        }
+
+        function updateStats() {
+            document.getElementById('totalAppointments').textContent = appointments.length;
+            document.getElementById('pendingAppointments').textContent = appointments.filter(a => a.status === 'Pending').length;
+            
+            const appointmentsList = document.getElementById('appointmentsList');
+            if (appointments.length === 0) {
+                appointmentsList.innerHTML = '<div class="card"><p>No appointments found. <a onclick="showPage(\'doctors\')" style="cursor: pointer; color: #3498db;">Book your first appointment</a></p></div>';
+            } else {
+                appointmentsList.innerHTML = appointments.map(apt => `
+                    <div class="appointment-card">
+                        <div class="appointment-info">
+                            <h3>${apt.doctorName}</h3>
+                            <p>${apt.specialization}</p>
+                            <p><strong>Time:</strong> ${apt.slot}</p>
+                        </div>
+                        <div>
+                            <span class="status pending">${apt.status}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Initialize
+        showPage('home');
+    </script>
+</body>
+</html>
