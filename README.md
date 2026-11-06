@@ -1,5 +1,5 @@
  # Smart Appointment Booking System. 
-
+        
 A complete web application for booking medical appointments built with JSP, Servlets, and MySQL.
 
 ## Project Structure
